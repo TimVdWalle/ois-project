@@ -1,0 +1,46 @@
+<!--
+  Generated template for the DiagnosePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Make diagnose</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            Selected patient: <i>{{patient["First name"]}} ({{patient["Middle names"]}}) {{patient["Last name"]}}</i>
+          </ion-card-header>
+          <ion-card-content>
+            Please enter some symptoms.
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <!--<button ion-button (click)="gotoMakeDiagnose()">make diagnose</button>-->
+      </ion-col>
+    </ion-row>
+
+
+    <ion-row>
+        <ion-col>
+          <ion-searchbar (ionInput)="getItems($event)">search</ion-searchbar>
+          <ion-list>
+            <ion-item *ngFor="let item of items" (click)="itemSelected(item)">
+              {{ item }}
+            </ion-item>
+          </ion-list>
+        </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
