@@ -19,7 +19,7 @@
       <ion-col>
         <ion-card>
           <ion-card-header>
-            Selected patient: <i>{{patient["First name"]}} ({{patient["Middle names"]}}) {{patient["Last name"]}}</i>
+            Selected patient: <i>{{patient["FirstName"]}} {{patient["MiddleNames"]}} {{patient["LastName"]}}</i>
           </ion-card-header>
           <ion-card-content>
             Please enter some symptoms.
@@ -27,17 +27,24 @@
         </ion-card>
       </ion-col>
       <ion-col>
-        <!--<button ion-button (click)="gotoMakeDiagnose()">make diagnose</button>-->
+      Selected symptoms
+      <br />
+      <span *ngFor="let symptom of selectedSymptoms"><ion-badge (click)="removeSymptom(symptom)" color="danger">{{ symptom.symptom }}</ion-badge>&nbsp;</span>
+      <br />
+
+      <button ion-button clear item-end *ngIf="showButton"><button ion-button (click)="gotoMakeDiagnose2()">next</button></button>
+
       </ion-col>
     </ion-row>
-
 
     <ion-row>
         <ion-col>
           <ion-searchbar (ionInput)="getItems($event)">search</ion-searchbar>
           <ion-list>
-            <ion-item *ngFor="let item of items" (click)="itemSelected(item)">
-              {{ item }}
+            <ion-item *ngFor="let symptom of symptoms">
+              {{ symptom.symptom }}
+              <button ion-button clear item-end (click)="itemSearch(symptom)">Search</button>
+              <button ion-button clear item-end (click)="itemSelect(symptom)">Select</button>
             </ion-item>
           </ion-list>
         </ion-col>

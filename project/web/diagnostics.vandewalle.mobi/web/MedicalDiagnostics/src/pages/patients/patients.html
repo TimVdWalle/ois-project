@@ -30,7 +30,8 @@
         </ion-card>
       </ion-col>
       <ion-col>
-        <!--<button ion-button (click)="gotoMakeDiagnose()">make diagnose</button>-->
+          <button ion-button (click)="gotoCreatePatient()">register new patient</button>
+          <button ion-button (click)="refresh()">refresh</button>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -42,7 +43,7 @@
       <ion-avatar item-start>
         <button ion-button color="secondary" round>{{patient.initials}}</button>
       </ion-avatar>
-      <h2>{{patient["First name"]}} ({{patient["Middle names"]}}) {{patient["Last name"]}}</h2>
+      <h2>{{patient["FirstName"]}} {{patient["MiddleNames"]}} {{patient["LastName"]}}</h2>
       <h3>{{patient.age}} years</h3>
       <p>Last diagnose <i>{{patient.lastDiagnose}}</i></p>
 

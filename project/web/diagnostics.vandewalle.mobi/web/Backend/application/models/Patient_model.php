@@ -14,7 +14,7 @@ class Patient_model extends CI_Model {
         if($user != FALSE) {            
             //$query = $this->db->get_where('Patient');
 
-            $query = $this->db->query("SELECT concat(Left(`First name`,1),  Left(`Last name`,1)) as 'initials', `First name`, `Middle names`, `Last name`, `Birthplace`, `Birthcountry`, `Sex`, YEAR(CURRENT_TIMESTAMP) - YEAR(`Date of Birth`) as 'age', 'never' as 'lastDiagnose' from Patient");
+            $query = $this->db->query("SELECT concat(Left(`FirstName`,1),  Left(`LastName`,1)) as 'initials', `FirstName`, `MiddleNames`, `LastName`, `Birthplace`, `Birthcountry`, `Sex`, YEAR(CURRENT_TIMESTAMP) - YEAR(`DateOfBirth`) as 'age', 'never' as 'lastDiagnose' from Patient");
             return $query->result();
             return $query->row_array();
         }

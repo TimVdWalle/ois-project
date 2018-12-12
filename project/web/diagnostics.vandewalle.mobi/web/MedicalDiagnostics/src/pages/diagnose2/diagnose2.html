@@ -1,0 +1,97 @@
+<!--
+  Generated template for the Diagnose2Page page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Make diagnose 2/2</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+                Selected patient: <i>{{patient["FirstName"]}} {{patient["MiddleNames"]}} {{patient["LastName"]}}</i>
+          </ion-card-header>
+          <ion-card-content>
+              <br />
+            Selected symptoms: 
+            <br />
+            <br />
+            <span *ngFor="let symptom of selectedSymptoms"><ion-badge color="danger">{{ symptom.symptom }}</ion-badge>&nbsp;</span>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        <button ion-button clear item-end><button ion-button (click)="save()">save</button></button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row  *ngFor="let symptom of selectedSymptoms">
+        <ion-card>
+            <ion-card-header color="primary">{{ symptom.symptom }}</ion-card-header>
+            <ion-card-content>
+                <ion-grid>
+                    <ion-row >
+                        <ion-col col-3 style="padding-top: 16px;">Severity?</ion-col>
+                        <ion-col col-6>
+                            <ion-range min="0" max="10" [(ngModel)]="symptom.severity" color="danger">
+                                <ion-label range-left>0</ion-label>
+                                <ion-label range-right>10</ion-label>
+                              </ion-range><ion-badge item-end color="danger" style="float:right;">{{symptom.severity}}</ion-badge>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col col-3 style="padding-top: 16px;">Started when?</ion-col>
+                        <ion-col col-6>
+                            <ion-datetime displayFormat="DD/MM/YYYY"   pickerFormat="DD/MM/YYYY"[(ngModel)]="symptom.startTime"></ion-datetime>
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col col-3 style="padding-top: 16px;">Ended when?</ion-col>
+                        <ion-col col-6>
+                            <ion-datetime displayFormat="DD/MM/YYYY"  pickerFormat="DD/MM/YYYY" [(ngModel)]="symptom.stopTime"></ion-datetime>
+                        </ion-col>
+                    </ion-row>
+
+                    <ion-row>
+                        <ion-col col-3 style="padding-top: 16px;">Location </ion-col>
+                        <ion-col col-6>
+                          <table>
+                            <tr>
+                                <td>
+                                    <a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">latitude</a>:
+                                </td>
+                                <td>
+                                    <ion-input  placeholder="Latitude" [(ngModel)]="symptom.latitude"></ion-input>
+                                </td>
+                            </tr>
+                            <tr>
+                              <td><a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">longitude</a>:</td>
+                              <td><ion-input  placeholder="Longitude" [(ngModel)]="symptom.longitude"></ion-input></td>
+                            </tr>
+                          </table>                          
+                        </ion-col>
+                    </ion-row>
+                    <ion-row>
+                        <ion-col col-3 style="padding-top: 16px;">Affects bodypart?</ion-col>
+                        <ion-col col-6>
+                            {{symptom.Uri_bodypart}}
+                        </ion-col>
+                    </ion-row>
+                  </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+

@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController, AlertController, LoadingController, Loading, IonicPage } from 'ionic-angular';
 import { AuthService } from '../../providers/auth-service/auth-service';
-
-import { Storage } from '@ionic/storage';
  
 @IonicPage()
 @Component({
@@ -16,8 +14,7 @@ export class LoginPage {
   constructor(private nav: NavController, 
     private auth: AuthService, 
     private alertCtrl: AlertController, 
-    private loadingCtrl: LoadingController,
-    private storage: Storage) { }
+    private loadingCtrl: LoadingController) { }
  
   public createAccount() {
     this.nav.push('RegisterPage');
@@ -27,13 +24,7 @@ export class LoginPage {
     this.showLoading()
     this.auth.login(this.registerCredentials).subscribe(allowed => {
       if (allowed) {        
-        //this.nav.push('PatientsPage');
-        this.storage.set('userName', this.registerCredentials.email);
-        var test = this.storage.get('userName');
-        console.log("setting username");
-
-        this.nav.setRoot('PatientsPage');
-        this.nav.setRoot('PatientsPage');
+        this.nav.setRoot('PatientsPage', {userName: this.registerCredentials.email});
       } else {
         this.showError("Access Denied");
       }
