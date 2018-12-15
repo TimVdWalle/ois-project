@@ -23,6 +23,7 @@ export class DiagnosePage {
   symptoms: any[];
   selectedSymptoms: any[];
   showButton:boolean = false;
+  searchbar: string = "";
 
   constructor(
     public navCtrl: NavController, 
@@ -35,6 +36,7 @@ export class DiagnosePage {
 
       console.log(this.patient);
       this.initializeItems();    
+      this.searchbar = "";
   }
 
   initializeItems() {
@@ -50,36 +52,78 @@ export class DiagnosePage {
     const val = ev.target.value;
     
     if (val && val.trim() != '' && val.trim().length > 2) {
-      let url = "http://diagnostics.vandewalle.mobi/Backend/Symptom/get_symptomsFromSearch/" + val.trim();
+      let url = "http://diagnostics.vandewalle.mobi/Backend/Symptom/get_symptomsJSON/" + val.trim();
 
       //this.http.get(url).map(res => res.json()).subscribe((data)=>{
       this.http.get(url).map(res => res).subscribe((data)=>{
+        console.log("retrieving searched symptoms");
+        console.log(JSON.parse(data.text()));
+
         this.symptoms = JSON.parse(data.text());
       });
     }      
   }
 
-  getItemsAlternatives(symptom) {
+  getItemsAlternatives(symptomUri: String) {
     // Reset items back to all of the items
     //this.initializeItems();
 
     // set val to the value of the searchbar
     //const val = ev.target.value;
+
+    //symptomUri = "SYMP_0000883"
     
-    if (symptom && symptom.trim() != '') {
-      let url = "http://diagnostics.vandewalle.mobi/Backend/Symptom/get_symptomsAlternatives/" + symptom;
+    
+    var removePart = "http://purl.obolibrary.org/obo/";
+    //symptomUri = symptomUri.substring( 0, symptomUri.indexOf( removePart ));
+
+    symptomUri = symptomUri.replace(removePart, "");
+    console.log(symptomUri);
+    
+    this.symptoms = [];
+
+
+    // parent(s) ophalen
+    if (symptomUri && symptomUri.trim() != '') {
+      let url = "http://diagnostics.vandewalle.mobi/Backend/Symptom/get_symptomParentTreeJSON/" + symptomUri;
+      console.log("retrieving parents");
 
       //this.http.get(url).map(res => res.json()).subscribe((data)=>{
       this.http.get(url).map(res => res).subscribe((data)=>{
-        this.symptoms = JSON.parse(data.text());
+        var dataString = data.text().replace(/superclass/g, "symptom");
+        console.log(JSON.parse(dataString));
+
+        var currentList = this.symptoms;
+        var newList = currentList.concat(JSON.parse(dataString));
+        this.symptoms = newList;
+
+        //this.symptoms = JSON.parse(data.text());
       });
-    }      
+    }  
+
+    // children ophalen
+    if (symptomUri && symptomUri.trim() != '') {
+      let url = "http://diagnostics.vandewalle.mobi/Backend/Symptom/get_symptomChildrenDirectJSON/" + symptomUri;
+      console.log("retrieving children");
+
+      //this.http.get(url).map(res => res.json()).subscribe((data)=>{
+      this.http.get(url).map(res => res).subscribe((data)=>{
+        var dataString = data.text().replace(/subclass/g, "symptom");
+        console.log(JSON.parse(dataString));
+
+        var currentList = this.symptoms;
+        var newList = currentList.concat(JSON.parse(dataString));
+        this.symptoms = newList;
+
+        //this.symptoms.push(JSON.parse(data.text()));
+      });
+    }        
   }
 
   itemSearch(symptom){
-    console.log("searching for alternatives for : " + symptom);
+    console.log("searching for alternatives for : " + symptom.uri);
     console.log(symptom.symptom);
-    this.getItemsAlternatives(symptom.symptom);
+    this.getItemsAlternatives(symptom.uri);
   }
 
   itemSelect(symptom){
@@ -89,6 +133,8 @@ export class DiagnosePage {
     this.selectedSymptoms.push(symptom);
     this.showButton = true;
     this.presentToast("Symptom " + symptom.symptom + " has been selected.");
+    this.searchbar = "";
+    //this.symptoms = [];
   }
 
   ionViewDidLoad() {
@@ -111,6 +157,10 @@ export class DiagnosePage {
     if(this.selectedSymptoms.length == 0){
       this.showButton = false;
     }
+  }
+
+  itemInfo(disease){
+    console.log("showing info for" + disease)
   }
 
   presentToast(message) {

@@ -25809,6 +25809,18 @@ ion-chip ion-avatar ion-text-avatar {
   background-color: #222;
 }
 
+page-diagnose2 ion-col {
+  /*border-right: 1px solid red;*/
+}
+
+page-diagnose2 ion-range {
+  margin-left: 5px;
+}
+
+page-diagnose2 table {
+  margin-left: 10px;
+}
+
 page-login .login-content {
   background: #56CA96;
 }

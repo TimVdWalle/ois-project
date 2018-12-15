@@ -4,7 +4,9 @@ import { IonTextAvatar } from 'ionic-text-avatar';
 //import {LoginPage} from '../login/login';
 import {DiagnosePage} from '../diagnose/diagnose';
 import { Http } from '@angular/http';
+
 import { CreatePatientPage } from '../create-patient/create-patient';
+import { SearchDiseasePage } from '../search-disease/search-disease';
 
 /**
  * Generated class for the PatientsPage page.
@@ -64,5 +66,10 @@ export class PatientsPage {
 
   refresh(){
     this.loadPatients();
+  }
+
+  searchDisease(){
+    console.log("goto searchDisease");
+    this.navCtrl.push(SearchDiseasePage, {userName: this.userName});
   }
 }

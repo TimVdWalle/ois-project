@@ -1,6 +1,8 @@
 <?php
 class Disease extends CI_Controller {
 
+        //  http://diagnostics.vandewalle.mobi/Backend/Disease/
+
         public function index()
         {
                 echo 'Disease api!';
@@ -10,7 +12,14 @@ class Disease extends CI_Controller {
                 echo "trying sparqlendpoint for: " . $searchString;
         }
 
-        public function get_diseases($searchString) {
+        private function safe_JSON($json) {
+            if(strlen($json) < 3) {
+                return "[]";
+            }
+            return $json;
+        }
+
+        public function get_diseasesDummy($searchString) {
                 // echo "looking up diseases for string: " . $searchString
 
                 // dummy
@@ -29,15 +38,19 @@ class Disease extends CI_Controller {
                 header('Content-Type: application/json');
                 header('Access-Control-Allow-Origin: *'); 
                 
+                $diseases = $this->safe_JSON($diseases);
+
                 echo $diseases;
 
                 // return $diseases
                 
         }
 
-        public function get_sparqlTestForObject($objectString = "DOID_5517") {
+        /* ============================== TOEGEVOEGD DOOR RONALD ============================== */
+
+        public function get_diseasesTable($searchString = "cancer") {
             include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
-            
+                    
             $dbpconfig = array(
             "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
             );
@@ -50,49 +63,455 @@ class Disease extends CI_Controller {
 
             // voeg object toe in query
 
-            $query = '
-                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-                PREFIX doid: <http://purl.obolibrary.org/obo/merged/DOID>
-                
-                SELECT * 
-                FROM doid:
-                WHERE {
-                        ?subject rdf:type ?object .
-                        FILTER ( ?subject = <http://purl.obolibrary.org/obo/DOID_5517> )
-                } 
-                LIMIT 25
-            ';
+            $query = "
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX doid: <http://purl.obolibrary.org/obo/merged/DOID>
+            
+            SELECT distinct ?disease_label ?disease_object
+            FROM doid:
+            WHERE {
+                ?disease_object rdfs:label ?disease_label .
+                FILTER (REGEX(STR(?disease_label), \"$searchString\"))
+            }
+            ";
 
             /* execute the query */
             $rows = $store->query($query, 'rows'); 
-
-            if ($errs = $store->getErrors()) {
-                echo "Query errors" ;
-                print_r($errs);
-            }
 
             /* display the results in an HTML table */
             echo "<table border='1'>
                 <thead>
                         <th>#</th>
-                        <th>Subject</th>
-                        <th>Object</th>
+                        <th>Disease Label</th>
+                        <th>Disease Object</th>
                 </thead>";
 
             $id = 0;
             
+            // return diseases
+
+            $diseases = array();
+
             /* loop for each returned row */
             foreach( $rows as $row ) { 
-            print "<tr><td>".++$id. "</td>
-            <td><a href='". $row['subject'] . "'>" . 
-            $row['object']."</a></td><td>";
+                print "<tr><td>".++$id. "</td>
+                <td>". $row['disease_label'] . "</td><td>" . 
+                $row['disease_object']."</td>";
             }
 
             echo "</table>" ;
             echo "<p> This is a SPARQL Test ! </p>";
             echo "<h3> Query: </h3>";
             echo "<p> $query </p>";
-            echo "<h3> Results: </h3>";
+            echo "<h3> Raw Data Results: </h3>";
+            print_r($rows);
+            echo "<h3> Errors: </h3>";
+            if ($errs = $store->getErrors()) {
+                echo "Query errors" ;
+                print_r($errs);
+            }
+                
+        }
+
+        public function get_diseasesJSON($searchString = "cancer") {
+                include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+                );
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
+                }
+    
+                // voeg object toe in query
+    
+                $query = "
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX doid: <http://purl.obolibrary.org/obo/merged/DOID>
+                
+                SELECT distinct ?disease_label ?disease_object
+                FROM doid:
+                WHERE {
+                    ?disease_object rdfs:label ?disease_label .
+                    FILTER (REGEX(STR(?disease_label), \"$searchString\"))
+                }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
+                
+                // VERGEET PUNTKOMMAS NIET
+                // return diseases
+    
+                $diseases = "[";
+
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    $label = $row['disease_label'];
+                    $object = $row['disease_object'];
+                    $disease = "{\"disease\": \"$label\", \"uri\": \"$object\"},";
+                    $diseases = $diseases . $disease;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $diseases = substr($diseases, 0, -1);
+                $diseases = $diseases . "]";
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *');
+                
+                $diseases = $this->safe_JSON($diseases);
+                
+                echo $diseases;
+        }
+
+        // ---------------------------------------------------------------------------------------
+
+        // http://sparql.hegroup.org/sparql/
+        // https://docs.google.com/document/d/1XZeaG0n1eMDeIn3iL6Z3XXS0hXgyd0TlosSVV-PbyAo/edit
+        // https://computersciencews-vub.slack.com/messages/GDF2V7DNG/
+        
+        public function get_diseaseChildrenDirectTable($disease = "DOID_1319") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+            $dbpconfig = array(
+            "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+            );
+
+            $store = ARC2::getRemoteStore($dbpconfig); 
+
+            if ($errs = $store->getErrors()) {
+            echo "<h1>getRemoteSotre error</h1>" ;
+            }
+
+            // voeg object toe in query
+
+            $query = "
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX doid: <http://purl.obolibrary.org/obo/>
+    
+            SELECT distinct ?subclass_label ?subclass_object
+            FROM <http://purl.obolibrary.org/obo/merged/DOID>
+            WHERE
+            {
+            ?subclass_object rdfs:subClassOf doid:$disease .
+            ?subclass_object rdfs:label ?subclass_label .
+            }
+            ";
+
+            /* execute the query */
+            $rows = $store->query($query, 'rows'); 
+
+            /* display the results in an HTML table */
+            echo "<table border='1'>
+                <thead>
+                        <th>#</th>
+                        <th>Subclass Label</th>
+                        <th>Subclass Object</th>
+                </thead>";
+
+            $id = 0;
+            
+            // return diseases
+
+            $diseases = array();
+
+            /* loop for each returned row */
+            foreach( $rows as $row ) { 
+                print "<tr><td>".++$id. "</td>
+                <td>". $row['subclass_label'] . "</td><td>" . 
+                $row['subclass_object']."</td>";
+            }
+
+            echo "</table>" ;
+            echo "<p> This is a SPARQL Test ! </p>";
+            echo "<h3> Query: </h3>";
+            echo "<p> $query </p>";
+            echo "<h3> Raw Data Results: </h3>";
+            print_r($rows);
+            echo "<h3> Errors: </h3>";
+            if ($errs = $store->getErrors()) {
+                echo "Query errors" ;
+                print_r($errs);
+            }
+        }
+
+        public function get_diseaseChildrenDirectJSON($disease = "DOID_1319") {
+            // todo
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+                );
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
+                }
+    
+                // voeg object toe in query
+    
+                $query = "
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX doid: <http://purl.obolibrary.org/obo/>
+        
+                SELECT distinct ?subclass_label ?subclass_object
+                FROM <http://purl.obolibrary.org/obo/merged/DOID>
+                WHERE
+                {
+                ?subclass_object rdfs:subClassOf doid:$disease .
+                ?subclass_object rdfs:label ?subclass_label .
+                }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
+                
+                // VERGEET PUNTKOMMAS NIET
+                // return subclasses
+    
+                $subclasses = "[";
+
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    $label = $row['subclass_label'];
+                    $object = $row['subclass_object'];
+                    $subclass = "{\"subclass\": \"$label\", \"uri\": \"$object\"},";
+                    $subclasses = $subclasses . $subclass;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $subclasses = substr($subclasses, 0, -1);
+                $subclasses = $subclasses . "]";
+
+                $subclasses = $this->safe_JSON($subclasses);
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *'); 
+                
+                echo $subclasses;
+        }
+
+        // ----------------------------------------------------------------------------------------
+
+        public function get_diseasesForSymptomTable($symptom = "SYMP_0000605") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+            $dbpconfig = array(
+            "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+            );
+
+            $store = ARC2::getRemoteStore($dbpconfig); 
+
+            if ($errs = $store->getErrors()) {
+            echo "<h1>getRemoteSotre error</h1>" ;
+            }
+
+            // voeg object toe in query
+
+            $query = "
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                
+            SELECT distinct ?disease_object ?disease_label ?symptom_label
+            FROM <http://purl.obolibrary.org/obo/merged/DOID>
+            WHERE {
+            ?disease_object rdfs:subClassOf ?r . 
+            ?disease_object rdfs:label ?disease_label .
+            ?r rdf:type owl:Restriction . 
+            ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> . 
+            ?r owl:someValuesFrom <http://purl.obolibrary.org/obo/$symptom> . 
+            <http://purl.obolibrary.org/obo/$symptom> rdfs:label ?symptom_label .
+            }
+            ";
+
+            /* execute the query */
+            $rows = $store->query($query, 'rows'); 
+
+            /* display the results in an HTML table */
+            echo "<table border='1'>
+                <thead>
+                        <th>#</th>
+                        <th>Disease Object</th>
+                        <th>Disease Label</th>
+                        <th>Symptom Label</th>
+                </thead>";
+
+            $id = 0;
+            
+            // return diseases
+
+            $diseases = array();
+
+            /* loop for each returned row */
+            foreach( $rows as $row ) { 
+                print "<tr><td>".++$id. "</td>
+                <td>". $row['disease_object'] . "</td><td>" . 
+                $row['disease_label']. "</td><td>" . 
+                $row['symptom_label']. "</td>";
+            }
+
+            echo "</table>" ;
+            echo "<p> This is a SPARQL Test ! </p>";
+            echo "<h3> Query: </h3>";
+            echo "<p> $query </p>";
+            echo "<h3> Raw Data Results: </h3>";
+            print_r($rows);
+            echo "<h3> Errors: </h3>";
+            if ($errs = $store->getErrors()) {
+                echo "Query errors" ;
+                print_r($errs);
+            }
+        }
+
+        public function get_diseasesForSymptomJSON($symptom = "SYMP_0000605") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+                );
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
+                }
+    
+                // voeg object toe in query
+    
+                $query = "
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                    
+                SELECT distinct ?disease_object ?disease_label ?symptom_label
+                FROM <http://purl.obolibrary.org/obo/merged/DOID>
+                WHERE {
+                ?disease_object rdfs:subClassOf ?r . 
+                ?disease_object rdfs:label ?disease_label .
+                ?r rdf:type owl:Restriction . 
+                ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> . 
+                ?r owl:someValuesFrom <http://purl.obolibrary.org/obo/$symptom> . 
+                <http://purl.obolibrary.org/obo/$symptom> rdfs:label ?symptom_label .
+                }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
+                
+                // VERGEET PUNTKOMMAS NIET
+                // return diseases
+    
+                $diseases = "[";
+
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    
+                    $d_object = $row['disease_object'];
+                    $d_label = $row['disease_label'];
+                    $s_label = $row['symptom_label'];
+                    $disease = "{\"disease\": \"$d_label\", \"linkedSymptom\": \"$s_label\", \"uri\": \"$d_object\"},";
+                    $diseases = $diseases . $disease;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $diseases = substr($diseases, 0, -1);
+                $diseases = $diseases . "]";
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *'); 
+                
+                $diseases = $this->safe_JSON($diseases);
+
+                echo $diseases;
+        }
+
+        public function get_diseaseLabelAndDescriptionAndSymptomsTable($disease = "DOID_0050118") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+            $dbpconfig = array(
+            "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+            );
+
+            $store = ARC2::getRemoteStore($dbpconfig); 
+
+            if ($errs = $store->getErrors()) {
+            echo "<h1>getRemoteSotre error</h1>" ;
+            }
+
+            // voeg object toe in query
+
+            $query = "
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX obo: <http://purl.obolibrary.org/obo/>     
+
+            SELECT distinct ?disease_label ?disease_description ?symptom_label
+            FROM <http://purl.obolibrary.org/obo/merged/DOID>
+            WHERE {
+            <http://purl.obolibrary.org/obo/$disease> rdfs:subClassOf ?r . 
+            <http://purl.obolibrary.org/obo/$disease> rdfs:label ?disease_label .
+            <http://purl.obolibrary.org/obo/$disease> obo:IAO_0000115 ?disease_description .
+            ?r rdf:type owl:Restriction . 
+            ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> . 
+            ?r owl:someValuesFrom ?s . 
+            ?s rdfs:label ?symptom_label .
+            }
+            ";
+
+            /* execute the query */
+            $rows = $store->query($query, 'rows'); 
+
+            /* display the results in an HTML table */
+            echo "<table border='1'>
+                <thead>
+                        <th>#</th>
+                        <th>Disease Label</th>
+                        <th>Disease Description</th>
+                        <th>Symptom Labels</th>
+                </thead>";
+
+            $id = 0;
+            
+            // return diseases
+
+            $diseases = array();
+
+            /* loop for each returned row */
+            foreach( $rows as $row ) { 
+                print "<tr><td>".++$id. "</td>
+                <td>". $row['disease_label'] . "</td><td>" . 
+                $row['disease_description']. "</td><td>" . 
+                $row['symptom_label']. "</td>";
+            }
+
+            echo "</table>" ;
+            echo "<p> This is a SPARQL Test ! </p>";
+            echo "<h3> Query: </h3>";
+            echo "<p> $query </p>";
+            echo "<h3> Raw Data Results: </h3>";
             print_r($rows);
             echo "<h3> Errors: </h3>";
             if ($errs = $store->getErrors()) {
@@ -103,99 +522,309 @@ class Disease extends CI_Controller {
 
 
 
-        /*
-        public function get_patientsForUser($user){
-            $this->load->model('Patient_model');
-            $patients = $this->Patient_model->get_patientsForUser($user); 
-
-            //add the JSON header here
-             header('Content-Type: application/json');
-             header('Access-Control-Allow-Origin: *'); 
-             
-             echo json_encode($patients);
-        }
-
-        public function save_patient(){
-                header('Access-Control-Allow-Origin: *');
-                header('Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE');
-                header('Access-Control-Allow-Credentials: true');
-
-                // binnenkomende request omzetten naar variables
-                $entityBody = file_get_contents('php://input');
-                $data = json_decode($entityBody);
-
-                //var_dump($entityBody);
-
-                $firstName = "";
-                $middleNames = "";
-                $lastName = "";
-                $birthplace = "";
-                $birthCountry = "";
-                $dateOfBirth = "";
-
-                $data = array(
-                        'FirstName' => $data->firstName.$data->userName,
-                        'MiddleNames' => $data->middleNames,
-                        'LastName' => $data->lastName,
-                        'Birthplace' => $data->birthplace,
-                        'Birthcountry' => $data->birthCountry,
-                        'DateOfBirth' => $data->dateOfBirth,
-                        'Sex' => $data->sex
+        public function get_diseaseLabelAndDescriptionAndSymptomsJSON($disease = "DOID_0050118") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
                 );
-                
-                try {
-                        $this->load->database();
-                        $this->db->insert('Patient', $data);
-                        echo("Patient has been registered.");
-                } catch (Exception $e) {
-                        echo 'Caught exception: ',  $e->getMessage(), "\n";    
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
                 }
+    
+                // voeg object toe in query
+    
+                $query = "
+                    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                    PREFIX obo: <http://purl.obolibrary.org/obo/>     
 
-
-                // TODO : nog inserten in tabel om koppeling te maken met user
+                    SELECT distinct ?disease_label ?description ?symptom_label
+                    From <http://purl.obolibrary.org/obo/merged/DOID>
+                    Where {
+                    <http://purl.obolibrary.org/obo/$disease> rdfs:subClassOf ?r .
+                    OPTIONAL {<http://purl.obolibrary.org/obo/$disease> rdfs:label ?disease_label . }
+                    OPTIONAL { <http://purl.obolibrary.org/obo/$disease> obo:IAO_0000115 ?description . }
+                    OPTIONAL {      ?r rdf:type owl:Restriction .
+                    ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> .
+                    ?r owl:someValuesFrom ?s .
+                    ?s rdfs:label ?symptom_label . }
+            }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
                 
-                // Provides info
-                // Provides info about self
-                // Parameter van frontend nodig (user nodig > )
+                // VERGEET PUNTKOMMAS NIET
+                // return diseases
+    
+                $diseases = "[";
 
-                //echo "ok from server" .$firstName + " " + $dateOfBirth;
-                //echo "ok from server" . "j";
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    //var_dump($row);
+
+                    $d_label = $row['disease_label'];
+                    $d_descr = $row['description'];
+                    if(isset($row['symptom_label'])){
+                            $s_label = $row['symptom_label'];
+                    } else {
+                            $s_label = "";
+                    }
+                    $disease = "{\"disease\": \"$d_label\", \"description\": \"$d_descr\", \"symptom\": \"$s_label\"},";
+                    $diseases = $diseases . $disease;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $diseases = substr($diseases, 0, -1);
+                $diseases = $diseases . "]";
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *'); 
                 
+                $diseases = $this->safe_JSON($diseases);
 
+                echo $diseases;
         }
+
+        public function get_diseaseLabelAndDescriptionAndSymptomsJSON_OLD($disease = "DOID_0050118") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+                );
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
+                }
+    
+                // voeg object toe in query
+    
+                $query = "
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX obo: <http://purl.obolibrary.org/obo/>     
+    
+                SELECT distinct ?disease_label ?disease_description ?symptom_label
+                FROM <http://purl.obolibrary.org/obo/merged/DOID>
+                WHERE {
+                <http://purl.obolibrary.org/obo/$disease> rdfs:subClassOf ?r . 
+                <http://purl.obolibrary.org/obo/$disease> rdfs:label ?disease_label .
+                <http://purl.obolibrary.org/obo/$disease> obo:IAO_0000115 ?disease_description .
+                ?r rdf:type owl:Restriction . 
+                ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> . 
+                ?r owl:someValuesFrom ?s . 
+                ?s rdfs:label ?symptom_label .
+                }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
+                
+                // VERGEET PUNTKOMMAS NIET
+                // return diseases
+    
+                $diseases = "[";
+
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    $d_label = $row['disease_label'];
+                    $d_descr = $row['disease_description'];
+                    $s_label = $row['symptom_label'];
+                    $disease = "{\"disease\": \"$d_label\", \"description\": \"$d_descr\", \"symptom\": \"$s_label\"},";
+                    $diseases = $diseases . $disease;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $diseases = substr($diseases, 0, -1);
+                $diseases = $diseases . "]";
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *'); 
+                
+                $diseases = $this->safe_JSON($diseases);
+
+                echo $diseases;
+        }
+
+        public function get_diseaseLabelAndDescriptionAndSymptomsListTable($disease = "DOID_0050118") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+            $dbpconfig = array(
+            "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+            );
+
+            $store = ARC2::getRemoteStore($dbpconfig); 
+
+            if ($errs = $store->getErrors()) {
+            echo "<h1>getRemoteSotre error</h1>" ;
+            }
+
+            // voeg object toe in query
+
+            $query = "
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX owl: <http://www.w3.org/2002/07/owl#>
+            PREFIX obo: <http://purl.obolibrary.org/obo/>
+    
+            SELECT distinct ?disease_label ?disease_description (concat('[',group_concat(?symptom_label;separator=','),']') as ?symptom_labels)
+            FROM <http://purl.obolibrary.org/obo/merged/DOID>
+            WHERE {
+                <http://purl.obolibrary.org/obo/$disease> rdfs:subClassOf ?r .
+                <http://purl.obolibrary.org/obo/$disease> rdfs:label ?disease_label .
+                <http://purl.obolibrary.org/obo/$disease> obo:IAO_0000115 ?disease_description .
+                ?r rdf:type owl:Restriction .
+                ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> .
+                ?r owl:someValuesFrom ?s .
+                ?s rdfs:label ?symptom_label .
+            }
+            ";
+
+            /* execute the query */
+            $rows = $store->query($query, 'rows'); 
+
+            /* display the results in an HTML table */
+            echo "<table border='1'>
+                <thead>
+                        <th>#</th>
+                        <th>Disease Label</th>
+                        <th>Disease Description</th>
+                        <th>Associated Symptom Labels</th>
+                </thead>";
+
+            $id = 0;
+            
+            // return diseases
+
+            $diseases = array();
+
+            /* loop for each returned row */
+            foreach( $rows as $row ) { 
+                print "<tr><td>".++$id. "</td>
+                <td>". $row['disease_label'] . "</td><td>" . 
+                $row['disease_description']. "</td><td>" . 
+                $row['symptom_labels']. "</td>";
+            }
+
+            echo "</table>" ;
+            echo "<p> This is a SPARQL Test ! </p>";
+            echo "<h3> Query: </h3>";
+            echo "<p> $query </p>";
+            echo "<h3> Raw Data Results: </h3>";
+            print_r($rows);
+            echo "<h3> Errors: </h3>";
+            if ($errs = $store->getErrors()) {
+                echo "Query errors" ;
+                print_r($errs);
+            }
+        }
+
+        public function get_diseaseLabelAndDescriptionAndSymptomsListJSON($disease = "DOID_0050118") {
+            include_once('/home/ois/web/diagnostics.vandewalle.mobi/web/Backend/arc2-master/ARC2.php'); 
+                    
+                $dbpconfig = array(
+                "remote_store_endpoint" => "http://sparql.hegroup.org/sparql/",
+                );
+    
+                $store = ARC2::getRemoteStore($dbpconfig); 
+    
+                if ($errs = $store->getErrors()) {
+                echo "<h1>getRemoteSotre error</h1>" ;
+                }
+    
+                // voeg object toe in query
+    
+                $query = "
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX owl: <http://www.w3.org/2002/07/owl#>
+                PREFIX obo: <http://purl.obolibrary.org/obo/>     
+        
+                SELECT distinct ?disease_label ?disease_description (concat('[',group_concat(?symptom_label;separator=','),']') as ?symptom_labels)
+                FROM <http://purl.obolibrary.org/obo/merged/DOID>
+                WHERE {
+                    <http://purl.obolibrary.org/obo/$disease> rdfs:subClassOf ?r .
+                    <http://purl.obolibrary.org/obo/$disease> rdfs:label ?disease_label .
+                    <http://purl.obolibrary.org/obo/$disease> obo:IAO_0000115 ?disease_description .
+                    ?r rdf:type owl:Restriction .
+                    ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> .
+                    ?r owl:someValuesFrom ?s .
+                    ?s rdfs:label ?symptom_label .
+                }
+                ";
+    
+                /* execute the query */
+                $rows = $store->query($query, 'rows'); 
+    
+                $id = 0;
+                
+                // VERGEET PUNTKOMMAS NIET
+                // return diseases
+    
+                $diseases = "[";
+
+                /* loop for each returned row */
+                foreach( $rows as $row ) { 
+    
+                    $d_label = $row['disease_label'];
+                    $d_descr = $row['disease_description'];
+                    $s_labels = $row['symptom_labels'];
+                    $disease = "{\"disease\": \"$d_label\", \"description\": \"$d_descr\", \"associated symptoms\": \"$s_labels\"},";
+                    $diseases = $diseases . $disease;
+    
+                }
+    
+                // Smerige comma op het einde verwijderen
+                $diseases = substr($diseases, 0, -1);
+                $diseases = $diseases . "]";
+
+                //add the JSON header here
+                header('Content-Type: application/json');
+                header('Access-Control-Allow-Origin: *'); 
+                
+                $diseases = $this->safe_JSON($diseases);
+
+                echo $diseases;
+        }
+
+        /*
+
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX obo: <http://purl.obolibrary.org/obo/>     
+
+        SELECT distinct ?disease_label ?disease_description (concat('[',group_concat(?symptom_label;separator=","),']') as ?symptom_labels)
+        From <http://purl.obolibrary.org/obo/merged/DOID>
+        Where {
+            <http://purl.obolibrary.org/obo/DOID_0050118> rdfs:subClassOf ?r .
+            <http://purl.obolibrary.org/obo/DOID_0050118> rdfs:label ?disease_label .
+            <http://purl.obolibrary.org/obo/DOID_0050118> obo:IAO_0000115 ?disease_description .
+            ?r rdf:type owl:Restriction .
+            ?r owl:onProperty <http://purl.obolibrary.org/obo/doid#has_symptom> .
+            ?r owl:someValuesFrom ?s .
+            ?s rdfs:label ?symptom_label .
+        }
+
         */
+
+
+
+
+        
 }
 
-/*      
-
-INSERT INTO `Patient`(, , , , , , `Sex`) VALUES ([value-1],[value-2],[value-3],[value-4],[value-5],[value-6],[value-7])
-
-
->INSERT INTO `Patient` (`First` `name`, `Middle` `names`, `Last` `name`, `Birthplace`, `Birthcountry`, `Date of` `Birth`, ) VALUES ('', '', '', '', '', '', 'M')
-
-Birthcountry
-Birthplace
-Last name
-Middle names
-First name
-Date of Birth
-
-
-
-firstName: this.firstName, 
-middleNames: this.middleNames, 
-lastName: this.lastName, 
-birthplace: this.birthplace, 
-birthCountry: this.birthCountry, 
-dateOfBirth: this.dateOfBirth
-
-*/
-
-/*
-$firstName,
-$middleNames,
-$lastName,
-$birthplace,
-$birthCountry,
-$dateOfBirth)
-*/
+        

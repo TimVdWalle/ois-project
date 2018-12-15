@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Http, Headers, RequestOptions } from '@angular/http';
+import { Geolocation } from '@ionic-native/geolocation';
 import { ToastController } from 'ionic-angular';
+import { v } from '@angular/core/src/render3';
 
 /**
  * Generated class for the CreatePatientPage page.
@@ -25,8 +27,12 @@ export class CreatePatientPage {
   birthCountry: any;
   dateOfBirth: any;
   sex: any;
+  currentLocationLat: any;
+  currentLocationLong: any;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public http: Http, public toastController: ToastController) {
+  riskFactors: any[];
+
+  constructor(public navCtrl: NavController, public navParams: NavParams, public http: Http, public toastController: ToastController, public geolocation: Geolocation) {
     this.userName = navParams.get('userName');
 
     var initDate = new Date('1970-01-01').toISOString()
@@ -38,15 +44,60 @@ export class CreatePatientPage {
     this.birthplace = "";
     this.birthCountry = "";
     this.sex = "";
+
+    this.currentLocationLat = -51;
+    this.currentLocationLong = -3.2;
+
+    this.getLocation();
+    this.loadRiskFactors();
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad CreatePatientPage');
   }
 
+  getLocation(){
+    this.geolocation.getCurrentPosition().then((res) => {
+      // resp.coords.latitude
+      // resp.coords.longitude
+      //let location= 'lat'+ res.coords.latitude +'lang'+ res.coords.longitude;
+      let location='lat '+res.coords.latitude+' lang '+res.coords.longitude;
+      console.log("location = " + location);
+      this.currentLocationLat = res.coords.latitude;
+      this.currentLocationLong = res.coords.longitude;
+
+    }).catch((error) => {
+    console.log('Error getting location', error);
+    });
+  }
+
+  loadRiskFactors(){
+    console.log("fetching riskfactors");
+
+    // riskfactors ophalen
+    let url = "http://diagnostics.vandewalle.mobi/Backend/RiskFactor/getAll";
+    console.log(url);
+
+    //this.http.get(url).map(res => res.json()).subscribe((data)=>{
+    this.http.get(url).map(res => res).subscribe((data)=>{
+      var dataString = data.text().replace(/subclass/g, "disease");
+      var resJson = JSON.parse(dataString);
+      console.log(resJson);
+
+      if(resJson.length > 0){
+        this.riskFactors = resJson;
+      } else {
+        this.riskFactors = [];
+      }
+    });
+    
+
+  }
+
   post(patientData){
     console.log("trying to post");
 
+    // patient data saven
     var link = "http://diagnostics.vandewalle.mobi/Backend/Patient/save_patient/";
     
     this.http.post(link, patientData)
@@ -59,6 +110,10 @@ export class CreatePatientPage {
       console.log(error);
       this.presentToast("Something went wrong: " + error);
     });
+
+    // saven van riskfactors
+    
+    console.log(this.riskFactors);
   }
 
   createPatient(){

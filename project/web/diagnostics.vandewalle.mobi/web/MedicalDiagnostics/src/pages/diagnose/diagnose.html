@@ -29,7 +29,7 @@
       <ion-col>
       Selected symptoms
       <br />
-      <span *ngFor="let symptom of selectedSymptoms"><ion-badge (click)="removeSymptom(symptom)" color="danger">{{ symptom.symptom }}</ion-badge>&nbsp;</span>
+      <span *ngFor="let symptom of selectedSymptoms"><ion-badge (click)="removeSymptom(symptom)" color="danger">{{ symptom.symptom }}{{ symptom.superclass }}{{ symptom.subclass }}</ion-badge>&nbsp;</span>
       <br />
 
       <button ion-button clear item-end *ngIf="showButton"><button ion-button (click)="gotoMakeDiagnose2()">next</button></button>
@@ -39,7 +39,7 @@
 
     <ion-row>
         <ion-col>
-          <ion-searchbar (ionInput)="getItems($event)">search</ion-searchbar>
+          <ion-searchbar (ionInput)="getItems($event)" [(ngModel)]="searchbar">search</ion-searchbar>
           <ion-list>
             <ion-item *ngFor="let symptom of symptoms">
               {{ symptom.symptom }}

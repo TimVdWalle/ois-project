@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
+import {Http } from '@angular/http';
+import { ToastController } from 'ionic-angular';
 
 /**
  * Generated class for the Diagnose2Page page.
@@ -19,8 +21,15 @@ export class Diagnose2Page {
   selectedSymptoms: any[];
   currentLocationLat: any;
   currentLocationLong: any;
+  bodyparts: any[];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams, public geolocation: Geolocation) {
+  constructor(
+    public navCtrl: NavController, 
+    public navParams: NavParams, 
+    public http: Http, 
+    public toastController: ToastController,
+    public geolocation: Geolocation
+    ) {
     this.patient = navParams.get('patient');
 
     var myDate: String = new Date().toISOString();
@@ -35,6 +44,7 @@ export class Diagnose2Page {
       element.longitude = 3.2;
 
       element.Uri_bodypart = "body";
+      element.bodyparts = [];
     });
 
     /*
@@ -71,6 +81,37 @@ export class Diagnose2Page {
     }).catch((error) => {
     console.log('Error getting location', error);
     });
+  }
+
+  getBodyparts(ev: any, symptom) {
+    // Reset items back to all of the items
+    //this.initializeItems();
+
+    // set val to the value of the searchbar
+    const val = ev.target.value;
+    
+    if (val && val.trim() != '' && val.trim().length > 2) {
+      let url = "http://diagnostics.vandewalle.mobi/Backend/Bodypart/get_bodyparts/" + val.trim();
+
+      //this.http.get(url).map(res => res.json()).subscribe((data)=>{
+      this.http.get(url).map(res => res).subscribe((data)=>{
+        console.log("retrieving bodyparts");
+        console.log(url);
+        console.log(JSON.parse(data.text()));
+
+        symptom.bodyparts = JSON.parse(data.text());
+      });
+    }      
+  }
+
+  itemSelect(bodypart, symptom){
+    console.log(bodypart);
+    symptom.bodypart = bodypart;
+  }
+
+  removeBodyPart(symptom){
+    symptom.bodypart = undefined;
+    symptom.bodyparts = [];
   }
 
   save(){

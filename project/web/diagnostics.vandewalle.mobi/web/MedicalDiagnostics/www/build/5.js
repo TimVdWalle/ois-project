@@ -1,14 +1,14 @@
 webpackJsonp([5],{
 
-/***/ 278:
+/***/ 280:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CreatePatientPageModule", function() { return CreatePatientPageModule; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DiagnosePageModule", function() { return DiagnosePageModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__create_patient__ = __webpack_require__(200);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__diagnose__ = __webpack_require__(201);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -18,23 +18,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 
 
 
-var CreatePatientPageModule = /** @class */ (function () {
-    function CreatePatientPageModule() {
+var DiagnosePageModule = /** @class */ (function () {
+    function DiagnosePageModule() {
     }
-    CreatePatientPageModule = __decorate([
+    DiagnosePageModule = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["I" /* NgModule */])({
             declarations: [
-                __WEBPACK_IMPORTED_MODULE_2__create_patient__["a" /* CreatePatientPage */],
+                __WEBPACK_IMPORTED_MODULE_2__diagnose__["a" /* DiagnosePage */],
             ],
             imports: [
-                __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* IonicPageModule */].forChild(__WEBPACK_IMPORTED_MODULE_2__create_patient__["a" /* CreatePatientPage */]),
+                __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["g" /* IonicPageModule */].forChild(__WEBPACK_IMPORTED_MODULE_2__diagnose__["a" /* DiagnosePage */]),
             ],
         })
-    ], CreatePatientPageModule);
-    return CreatePatientPageModule;
+    ], DiagnosePageModule);
+    return DiagnosePageModule;
 }());
 
-//# sourceMappingURL=create-patient.module.js.map
+//# sourceMappingURL=diagnose.module.js.map
 
 /***/ })
 

@@ -1,15 +1,15 @@
 webpackJsonp([0],{
 
-/***/ 282:
+/***/ 281:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PatientsPageModule", function() { return PatientsPageModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_text_avatar__ = __webpack_require__(284);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__patients__ = __webpack_require__(286);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_text_avatar__ = __webpack_require__(286);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__patients__ = __webpack_require__(288);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -44,24 +44,24 @@ var PatientsPageModule = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 284:
+/***/ 286:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__ = __webpack_require__(285);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__ = __webpack_require__(287);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__["a"]; });
 
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 285:
+/***/ 287:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return IonTextAvatar; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -101,16 +101,17 @@ var IonTextAvatar = (function (_super) {
 
 /***/ }),
 
-/***/ 286:
+/***/ 288:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PatientsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__diagnose_diagnose__ = __webpack_require__(201);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(33);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__create_patient_create_patient__ = __webpack_require__(200);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__search_disease_search_disease__ = __webpack_require__(202);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -123,6 +124,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 //import {LoginPage} from '../login/login';
+
 
 
 
@@ -172,9 +174,13 @@ var PatientsPage = /** @class */ (function () {
     PatientsPage.prototype.refresh = function () {
         this.loadPatients();
     };
+    PatientsPage.prototype.searchDisease = function () {
+        console.log("goto searchDisease");
+        this.navCtrl.push(__WEBPACK_IMPORTED_MODULE_5__search_disease_search_disease__["a" /* SearchDiseasePage */], { userName: this.userName });
+    };
     PatientsPage = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["m" /* Component */])({
-            selector: 'page-patients',template:/*ion-inline-start:"/Users/timvandewalle/LocalDocuments/VUB/OIS/project/web/diagnostics.vandewalle.mobi/web/MedicalDiagnostics/src/pages/patients/patients.html"*/'<!--\n  Generated template for the PatientsPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n\n  <ion-navbar>\n    <ion-title>patients</ion-title>\n  </ion-navbar>\n\n</ion-header>\n\n\n<ion-content padding>\n\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <ion-card>\n          <ion-card-header>\n            Select patient\n          </ion-card-header>\n          <ion-card-content>\n            These are the patients that you can diagnose.\n            <br />\n            You are logged in as <i>{{this.userName}}.</i>\n          </ion-card-content>\n        </ion-card>\n      </ion-col>\n      <ion-col>\n          <button ion-button (click)="gotoCreatePatient()">register new patient</button>\n          <button ion-button (click)="refresh()">refresh</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n\n\n  <ion-list>\n    <ion-item *ngFor="let patient of patients" (click)="showMessage(patient)">\n      <ion-avatar item-start>\n        <button ion-button color="secondary" round>{{patient.initials}}</button>\n      </ion-avatar>\n      <h2>{{patient["FirstName"]}} {{patient["MiddleNames"]}} {{patient["LastName"]}}</h2>\n      <h3>{{patient.age}} years</h3>\n      <p>Last diagnose <i>{{patient.lastDiagnose}}</i></p>\n\n      <button ion-button clear item-end><button ion-button (click)="gotoMakeDiagnose(patient)">make diagnose</button></button>\n    </ion-item>\n\n\n  </ion-list>\n</ion-content>\n'/*ion-inline-end:"/Users/timvandewalle/LocalDocuments/VUB/OIS/project/web/diagnostics.vandewalle.mobi/web/MedicalDiagnostics/src/pages/patients/patients.html"*/,
+            selector: 'page-patients',template:/*ion-inline-start:"/Users/timvandewalle/LocalDocuments/VUB/OIS/project/web/diagnostics.vandewalle.mobi/web/MedicalDiagnostics/src/pages/patients/patients.html"*/'<!--\n  Generated template for the PatientsPage page.\n\n  See http://ionicframework.com/docs/components/#navigation for more info on\n  Ionic pages and navigation.\n-->\n<ion-header>\n\n  <ion-navbar>\n    <ion-title>patients</ion-title>\n  </ion-navbar>\n\n</ion-header>\n\n\n<ion-content padding>\n\n  <ion-grid>\n    <ion-row>\n      <ion-col>\n        <ion-card>\n          <ion-card-header>\n            Select patient\n          </ion-card-header>\n          <ion-card-content>\n            These are the patients that you can diagnose.\n            <br />\n            You are logged in as <i>{{this.userName}}.</i>\n          </ion-card-content>\n        </ion-card>\n      </ion-col>\n      <ion-col>\n          <button ion-button (click)="gotoCreatePatient()">register new patient</button>\n          \n          <br />\n          <button ion-button (click)="refresh()">refresh</button>\n          \n          <br />\n          <button ion-button (click)="searchDisease()">search disease</button>\n      </ion-col>\n    </ion-row>\n  </ion-grid>\n\n\n\n  <ion-list>\n    <ion-item *ngFor="let patient of patients" (click)="showMessage(patient)">\n      <ion-avatar item-start>\n        <button ion-button color="secondary" round>{{patient.initials}}</button>\n      </ion-avatar>\n      <h2>{{patient["FirstName"]}} {{patient["MiddleNames"]}} {{patient["LastName"]}}</h2>\n      <h3>{{patient.age}} years</h3>\n      <p>Last diagnose <i>{{patient.lastDiagnose}}</i></p>\n\n      <button ion-button clear item-end><button ion-button (click)="gotoMakeDiagnose(patient)">make diagnose</button></button>\n    </ion-item>\n\n\n  </ion-list>\n</ion-content>\n'/*ion-inline-end:"/Users/timvandewalle/LocalDocuments/VUB/OIS/project/web/diagnostics.vandewalle.mobi/web/MedicalDiagnostics/src/pages/patients/patients.html"*/,
         }),
         __metadata("design:paramtypes", [__WEBPACK_IMPORTED_MODULE_1_ionic_angular__["i" /* NavController */], __WEBPACK_IMPORTED_MODULE_1_ionic_angular__["j" /* NavParams */], __WEBPACK_IMPORTED_MODULE_3__angular_http__["a" /* Http */]])
     ], PatientsPage);

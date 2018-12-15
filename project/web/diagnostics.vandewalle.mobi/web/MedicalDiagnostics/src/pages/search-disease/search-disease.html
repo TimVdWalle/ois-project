@@ -1,0 +1,47 @@
+<!--
+  Generated template for the search-disease page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Search disease</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            Search disease
+          </ion-card-header>
+          <ion-card-content>
+            You are logged in as <i>{{this.userName}}.</i>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      <ion-col>
+        
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-card>
+      <ion-card-header color="primary"><ion-searchbar (ionInput)="getItems($event)"></ion-searchbar></ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let disease of diseases">
+            {{ disease.disease }}
+            <button ion-button clear item-end (click)="getItemsAlternatives(disease)">Search</button>
+            <button ion-button clear item-end (click)="itemInfo(disease)">Info</button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+  </ion-card>
+</ion-content>

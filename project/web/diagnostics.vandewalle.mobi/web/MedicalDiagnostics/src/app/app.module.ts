@@ -17,6 +17,7 @@ import { AuthService } from '../providers/auth-service/auth-service';
 import { DiagnosePage } from '../pages/diagnose/diagnose';
 import { Diagnose2Page } from '../pages/diagnose2/diagnose2';
 import { CreatePatientPage } from '../pages/create-patient/create-patient';
+import { SearchDiseasePage } from '../pages/search-disease/search-disease';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { CreatePatientPage } from '../pages/create-patient/create-patient';
     LoginPage,
     DiagnosePage,
     Diagnose2Page,
-    CreatePatientPage
+    CreatePatientPage,
+    SearchDiseasePage
   ],
   imports: [
     BrowserModule,
@@ -38,7 +40,8 @@ import { CreatePatientPage } from '../pages/create-patient/create-patient';
     LoginPage,
     DiagnosePage,
     Diagnose2Page,
-    CreatePatientPage
+    CreatePatientPage,
+    SearchDiseasePage
   ],
   providers: [
     StatusBar,

@@ -65,26 +65,37 @@
                     <ion-row>
                         <ion-col col-3 style="padding-top: 16px;">Location </ion-col>
                         <ion-col col-6>
-                          <table>
-                            <tr>
+                            <table>
+                                <tr>
                                 <td>
-                                    <a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">latitude</a>:
+                                <a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">latitude</a>:
                                 </td>
                                 <td>
-                                    <ion-input  placeholder="Latitude" [(ngModel)]="symptom.latitude"></ion-input>
+                                <ion-input  placeholder="Latitude" [(ngModel)]="symptom.latitude"></ion-input>
                                 </td>
-                            </tr>
-                            <tr>
-                              <td><a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">longitude</a>:</td>
-                              <td><ion-input  placeholder="Longitude" [(ngModel)]="symptom.longitude"></ion-input></td>
-                            </tr>
-                          </table>                          
+                                </tr>
+                                <tr>
+                                <td><a href="http://www.mapdevelopers.com/geocode_tool.php" target="_blank">longitude</a>:</td>
+                                <td><ion-input  placeholder="Longitude" [(ngModel)]="symptom.longitude"></ion-input></td>
+                                </tr>
+                            </table>   
                         </ion-col>
                     </ion-row>
                     <ion-row>
-                        <ion-col col-3 style="padding-top: 16px;">Affects bodypart?</ion-col>
+                        <ion-col col-3 fstyle="padding-top: 16px;">Affects bodypart?</ion-col>
                         <ion-col col-6>
-                            {{symptom.Uri_bodypart}}
+                            <span *ngIf="symptom.bodypart !== empty" (click)="removeBodyPart(symptom)">
+                                <ion-badge item-end color="secundary">{{symptom.bodypart.bodypart}}</ion-badge>
+                            </span>
+                            <div *ngIf="symptom.bodypart == empty">
+                                <ion-searchbar (ionInput)="getBodyparts($event, symptom)"></ion-searchbar>
+                                <ion-list>
+                                <ion-item *ngFor="let bodypart of symptom.bodyparts">
+                                    {{ bodypart.bodypart }}
+                                    <button ion-button clear item-end (click)="itemSelect(bodypart, symptom)">Select</button>
+                                </ion-item>
+                                </ion-list>
+                            </div>
                         </ion-col>
                     </ion-row>
                   </ion-grid>
