@@ -24,7 +24,7 @@ export class LoginPage {
     this.showLoading()
     this.auth.login(this.registerCredentials).subscribe(allowed => {
       if (allowed) {        
-        this.nav.setRoot('PatientsPage', {userName: this.registerCredentials.email});
+        this.nav.setRoot('PatientsPage', {userName: this.registerCredentials.email, isMedicalProfessional: false});
       } else {
         this.showError("Access Denied");
       }

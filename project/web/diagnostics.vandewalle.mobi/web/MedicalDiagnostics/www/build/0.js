@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 281:
+/***/ 283:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8,8 +8,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PatientsPageModule", function() { return PatientsPageModule; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_text_avatar__ = __webpack_require__(286);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__patients__ = __webpack_require__(288);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ionic_text_avatar__ = __webpack_require__(287);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__patients__ = __webpack_require__(289);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -44,18 +44,18 @@ var PatientsPageModule = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 286:
+/***/ 287:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__ = __webpack_require__(287);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__ = __webpack_require__(288);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__src_ion_text_avatar_ion_text_avatar__["a"]; });
 
 //# sourceMappingURL=index.js.map
 
 /***/ }),
 
-/***/ 287:
+/***/ 288:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -101,16 +101,16 @@ var IonTextAvatar = (function (_super) {
 
 /***/ }),
 
-/***/ 288:
+/***/ 289:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return PatientsPage; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_ionic_angular__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__diagnose_diagnose__ = __webpack_require__(201);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__diagnose_diagnose__ = __webpack_require__(200);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__create_patient_create_patient__ = __webpack_require__(200);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__create_patient_create_patient__ = __webpack_require__(201);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__search_disease_search_disease__ = __webpack_require__(202);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -140,8 +140,10 @@ var PatientsPage = /** @class */ (function () {
         this.navParams = navParams;
         this.http = http;
         this.userName = navParams.get('userName');
+        this.isMedicalProfessional = navParams.get('isMedicalProfessional');
         if (this.userName == undefined) {
             this.userName = "tim@vandewalle.mobi";
+            this.isMedicalProfessional = false;
         }
         this.loadPatients();
         this.patients = [
@@ -157,7 +159,7 @@ var PatientsPage = /** @class */ (function () {
         this.navCtrl.push(__WEBPACK_IMPORTED_MODULE_2__diagnose_diagnose__["a" /* DiagnosePage */], { patient: patient });
     };
     PatientsPage.prototype.gotoCreatePatient = function () {
-        this.navCtrl.push(__WEBPACK_IMPORTED_MODULE_4__create_patient_create_patient__["a" /* CreatePatientPage */], { userName: this.userName });
+        this.navCtrl.push(__WEBPACK_IMPORTED_MODULE_4__create_patient_create_patient__["a" /* CreatePatientPage */], { userName: this.userName, isMedicalProfessional: this.isMedicalProfessional });
     };
     PatientsPage.prototype.ionViewDidLoad = function () {
         console.log('ionViewDidLoad PatientsPage');
@@ -165,7 +167,8 @@ var PatientsPage = /** @class */ (function () {
     PatientsPage.prototype.loadPatients = function () {
         var _this = this;
         // get patiens data from api
-        var url = "http://diagnostics.vandewalle.mobi/Backend/Patient/get_patientsForUser/tim";
+        var url = "http://diagnostics.vandewalle.mobi/Backend/Patient/get_patientsForUser/" + encodeURIComponent(this.userName);
+        console.log("url = " + url);
         this.http.get(url).map(function (res) { return res.json(); }).subscribe(function (data) {
             //console.log(data);
             _this.patients = data;

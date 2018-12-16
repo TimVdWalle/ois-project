@@ -3,7 +3,7 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Geolocation } from '@ionic-native/geolocation';
 import { ToastController } from 'ionic-angular';
-import { v } from '@angular/core/src/render3';
+//import { v } from '@angular/core/src/render3';
 
 /**
  * Generated class for the CreatePatientPage page.
@@ -19,6 +19,7 @@ import { v } from '@angular/core/src/render3';
 })
 export class CreatePatientPage {
   userName: any;  
+  isMedicalProfessional: boolean;
 
   firstName: any;
   middleNames: any;
@@ -89,9 +90,7 @@ export class CreatePatientPage {
       } else {
         this.riskFactors = [];
       }
-    });
-    
-
+    });    
   }
 
   post(patientData){
@@ -112,12 +111,21 @@ export class CreatePatientPage {
     });
 
     // saven van riskfactors
-    
     console.log(this.riskFactors);
   }
 
   createPatient(){
     console.log(this.firstName + " " + this.sex);
+
+    // riskfactors opvullen met defaults
+    var myDate: String = new Date().toISOString();
+    this.riskFactors.forEach(element => {
+      element.severity = 0;
+      element.startTime = myDate;
+      element.stopTime = myDate;
+      element.longitude = this.currentLocationLong;
+      element.latitude = this.currentLocationLat;
+    });
 
     var patientData = JSON.stringify({
       firstName: this.firstName, 
@@ -128,9 +136,13 @@ export class CreatePatientPage {
       dateOfBirth: this.dateOfBirth, 
       sex: this.sex,
 
-      userName: this.userName
+      userName: this.userName,
+      isMedicalProfessional: this.isMedicalProfessional,
+
+      riskFactors: this.riskFactors.filter(riskFactor => riskFactor.isChecked === true)
     });
     
+    console.log(patientData)
     this.post(patientData);
   }
 

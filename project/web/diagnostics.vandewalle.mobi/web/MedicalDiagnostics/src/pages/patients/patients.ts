@@ -23,11 +23,14 @@ import { SearchDiseasePage } from '../search-disease/search-disease';
 export class PatientsPage {
   patients: any;
   userName: any;
+  isMedicalProfessional: boolean;
 
   constructor(public navCtrl: NavController, public navParams: NavParams, public http: Http) {
     this.userName = navParams.get('userName');
+    this.isMedicalProfessional = navParams.get('isMedicalProfessional');
     if(this.userName == undefined){
       this.userName = "tim@vandewalle.mobi";
+      this.isMedicalProfessional = false;
     }
 
     this.loadPatients();
@@ -48,7 +51,7 @@ export class PatientsPage {
   }
 
   gotoCreatePatient(){
-    this.navCtrl.push(CreatePatientPage, {userName: this.userName});
+    this.navCtrl.push(CreatePatientPage, {userName: this.userName, isMedicalProfessional: this.isMedicalProfessional});
   }
 
   ionViewDidLoad() {
@@ -57,7 +60,8 @@ export class PatientsPage {
 
   loadPatients(){
     // get patiens data from api
-    let url = "http://diagnostics.vandewalle.mobi/Backend/Patient/get_patientsForUser/tim";
+    let url = "http://diagnostics.vandewalle.mobi/Backend/Patient/get_patientsForUser/" + encodeURIComponent(this.userName);
+    console.log("url = " + url);
     this.http.get(url).map(res => res.json()).subscribe(data => {
         //console.log(data);
         this.patients = data;

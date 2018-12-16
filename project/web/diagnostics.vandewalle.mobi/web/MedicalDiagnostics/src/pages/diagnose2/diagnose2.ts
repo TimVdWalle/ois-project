@@ -43,17 +43,10 @@ export class Diagnose2Page {
       element.latitude = 51;
       element.longitude = 3.2;
 
-      element.Uri_bodypart = "body";
+      element.Uri_bodypart = undefined;
+      element.bodypart = undefined;
       element.bodyparts = [];
     });
-
-    /*
-    this.selectedSymptoms = [
-      { 'symptom': 'tv', 'severity':5, 'age':36, 'started':'11/11/2016'},
-      { 'symptom': 'rm', 'severity':8, 'age':36, 'started':'11/11/2017'},
-      { 'symptom': 'as', 'severity':9, 'age':28, 'started':'11/11/2018'}
-    ];
-    */
 
     this.selectedSymptoms = tempSymptoms;
   }
@@ -91,7 +84,7 @@ export class Diagnose2Page {
     const val = ev.target.value;
     
     if (val && val.trim() != '' && val.trim().length > 2) {
-      let url = "http://diagnostics.vandewalle.mobi/Backend/Bodypart/get_bodyparts/" + val.trim();
+      let url = "http://diagnostics.vandewalle.mobi/Backend/Bodypart/get_bodypartsJSON/" + val.trim();
 
       //this.http.get(url).map(res => res.json()).subscribe((data)=>{
       this.http.get(url).map(res => res).subscribe((data)=>{
@@ -106,20 +99,66 @@ export class Diagnose2Page {
 
   itemSelect(bodypart, symptom){
     console.log(bodypart);
-    symptom.bodypart = bodypart;
+    symptom.Uri_bodypart = bodypart.uri;
+    symptom.bodypart = bodypart.bodypart;
+
+    console.log("setting bp = ");
+    console.log(symptom.bodypart);
+
+    symptom.bodyparts = [];
   }
 
   removeBodyPart(symptom){
+    symptom.Uri_bodypart = undefined;
     symptom.bodypart = undefined;
     symptom.bodyparts = [];
   }
 
   save(){
-    console.log("saving");
-    
-    this.selectedSymptoms.forEach(symptom => {
-      console.log("saving" + symptom.iri + "; " + symptom.severity);
+    console.log("saving symptoms");
+
+    var symptomData = JSON.stringify({
+      firstName: this.patient.FirstName, 
+      middleNames: this.patient.MiddleNames, 
+      lastName: this.patient.LastName, 
+      birthplace: this.patient.Birthplace, 
+      birthCountry: this.patient.Birthcountry, 
+      dateOfBirth: this.patient.DateOfBirth,
+
+      symptoms: this.selectedSymptoms
     });
+    
+    console.log("patient = " + this.patient);
+    console.log(this.patient["FirstName"]);
+    console.log(symptomData);
+    this.post(symptomData);
+  }
+
+  post(data){
+    console.log("trying to post");
+
+    // patient data saven
+    var link = "http://diagnostics.vandewalle.mobi/Backend/Patient/save_patientSymptoms/";
+    
+    this.http.post(link, data)
+    .subscribe(data => {
+      var respons = data["_body"]; //https://stackoverflow.com/questions/39574305/property-body-does-not-exist-on-type-response
+      this.presentToast(respons);
+      console.log(respons);
+    }, error => {
+      console.log("Oooops!");
+      console.log(error);
+      this.presentToast("Something went wrong: " + error);
+    });
+  }
+
+  presentToast(message) {
+    const toast = this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: "top"
+    });
+    toast.present();
   }
 
 }

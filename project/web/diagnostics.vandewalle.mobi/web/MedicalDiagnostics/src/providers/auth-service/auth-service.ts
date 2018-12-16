@@ -24,8 +24,20 @@ export class AuthService {
     } else {
       return Observable.create(observer => {
         // At this point make a request to your backend to make a real check!
-        let access = ((credentials.password === "t" && credentials.email === "t") || (credentials.password === "test" && credentials.email === "tim@vandewalle.mobi"));
-        this.currentUser = new User('test', 'tim@vandewalle.mobi');
+        let access = (
+          (credentials.password === "t" && credentials.email === "t") || (credentials.password === "test" && credentials.email === "tim@vandewalle.mobi")
+          ||(credentials.password === "a" && credentials.email === "a") || (credentials.password === "test" && credentials.email === "astrid.sierens@vub.be")
+          ||(credentials.password === "r" && credentials.email === "r") || (credentials.password === "test" && credentials.email === "ronald.irenus.michiels@vub.be")
+          );
+        
+        if(credentials.email === "t" || credentials.email === "tim@vandewalle.mobi"){
+          this.currentUser = new User('test', 'tim@vandewalle.mobi');
+        } else if(credentials.email === "a" || credentials.email === "astrid.sierens@vub.be"){
+          this.currentUser = new User('test', 'astrid.sierens@vub.be');
+        } else if(credentials.email === "r" || credentials.email === "ronald.irenus.michiels@vub.be"){
+            this.currentUser = new User('test', 'ronald.irenus.michiels@vub.be');
+        }
+          
 
         //this.storage.set('userName', "test");
 

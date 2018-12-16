@@ -31,7 +31,7 @@
         </ion-card>
       </ion-col>
       <ion-col>
-        <button ion-button clear item-end><button ion-button (click)="save()">save</button></button>
+        <button ion-button clear item-end><button ion-button (click)="save()">diagnose</button></button>
       </ion-col>
     </ion-row>
 
@@ -82,12 +82,12 @@
                         </ion-col>
                     </ion-row>
                     <ion-row>
-                        <ion-col col-3 fstyle="padding-top: 16px;">Affects bodypart?</ion-col>
+                        <ion-col col-3 fstyle="padding-top: 16px;">Affects bodypart? </ion-col>
                         <ion-col col-6>
-                            <span *ngIf="symptom.bodypart !== empty" (click)="removeBodyPart(symptom)">
-                                <ion-badge item-end color="secundary">{{symptom.bodypart.bodypart}}</ion-badge>
+                            <span *ngIf="symptom.Uri_bodypart !== empty" (click)="removeBodyPart(symptom)">
+                                    <ion-badge item-end color="secundary">{{symptom.bodypart}}</ion-badge>
                             </span>
-                            <div *ngIf="symptom.bodypart == empty">
+                            <div *ngIf="symptom.Uri_bodypart == empty">
                                 <ion-searchbar (ionInput)="getBodyparts($event, symptom)"></ion-searchbar>
                                 <ion-list>
                                 <ion-item *ngFor="let bodypart of symptom.bodyparts">

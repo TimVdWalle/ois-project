@@ -14,6 +14,7 @@ import { LoginPage } from '../pages/login/login';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { AuthService } from '../providers/auth-service/auth-service';
+
 import { DiagnosePage } from '../pages/diagnose/diagnose';
 import { Diagnose2Page } from '../pages/diagnose2/diagnose2';
 import { CreatePatientPage } from '../pages/create-patient/create-patient';
